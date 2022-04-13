@@ -2,7 +2,7 @@
 #include <iostream>
 
 void TransposeConv2d(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_size],
-                     DTYPE bias,
+                     DTYPE bias[CFG::out_channels],
                      DTYPE kernel[CFG::out_channels][CFG::in_channels][CFG::kernel_size][CFG::kernel_size],
                      DTYPE out[CFG::out_channels][CFG::out_size][CFG::out_size])
 {
@@ -28,7 +28,7 @@ void TransposeConv2d(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_size],
     for (int i = 0; i < CFG::out_channels; ++i){
         for (int h = 0; h < CFG::out_size; ++h){
             for (int w = 0; w < CFG::out_size; ++w){
-                out[i][h][w] = 0; // TODO: fix bias
+                out[i][h][w] = bias[i];
             }
         }
     }

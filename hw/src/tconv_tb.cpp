@@ -34,17 +34,20 @@ int main()
     static DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_size];
     static DTYPE kernel[CFG::out_channels][CFG::in_channels][CFG::kernel_size][CFG::kernel_size];
     static DTYPE out[CFG::out_channels][CFG::out_size][CFG::out_size];
+    static DTYPE bias[CFG::out_channels];
 
     DTYPE *in_ptr = &in[0][0][0];
     DTYPE *kernel_ptr = &kernel[0][0][0][0];
     DTYPE *out_ptr = &out[0][0][0];
+    DTYPE *bias_ptr = &bias[0];
 
     init_mat(in_ptr, CFG::in_channels*CFG::in_size*CFG::in_size, 1);
     init_mat(kernel_ptr,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 1);
+    init_mat(bias_ptr, CFG::out_channels, 1);
 
     printmat(in_ptr, CFG::in_size, CFG::in_channels, "in");
 
-    TransposeConv2d(in, 0, kernel, out);
+    TransposeConv2d(in, bias, kernel, out);
 
     printmat(out_ptr, CFG::out_size, CFG::out_channels, "out");
 
