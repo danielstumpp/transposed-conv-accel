@@ -38,7 +38,7 @@
 .ipynb_checkpoints
 
 # vitis
-_x
+_x.*
 *.log
 .Xil
 .run
