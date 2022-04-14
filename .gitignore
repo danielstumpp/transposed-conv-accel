@@ -33,3 +33,6 @@
 
 #vscode 
 .vscode
+
+#python notebook
+.ipynb_checkpoints
