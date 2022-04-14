@@ -1,0 +1,2 @@
+performing high-level synthesis for kernel: TransposeConv2d_kernel
+Log file: /ihome/ageorge/cjg91/dev/transposed-conv-accel/hw/src/_x.sw_emu.xilinx_u200_xdma_201830_2.kernel.cpp/transpose_conv/TransposeConv2d_kernel/vivado_hls.log

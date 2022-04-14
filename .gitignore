@@ -36,3 +36,10 @@
 
 #python notebook
 .ipynb_checkpoints
+
+# vitis
+_x/
+*.log
+.Xil
+.run
+build_dir.*
