@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado_hls" Owner="cjg91" Host="fpga-n0.crc.pitt.edu" Pid="24106" HostCore="24" HostMemory="196673156">
-    </Process>
-</ProcessHandle>
