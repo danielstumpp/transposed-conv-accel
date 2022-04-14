@@ -1,7 +1,8 @@
-#include <cstdint>
 #include "../config.hpp"
+#include "ap_int.h"
 
-typedef int16_t DTYPE;
+typedef ap_int<16> HWTYPE;
 
-
-void TransposeConv2d_kernel(DTYPE *in, DTYPE *bias, DTYPE *kernel, DTYPE *out);
+extern "C" {
+void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *out);
+}
