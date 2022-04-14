@@ -1,13 +1,16 @@
 #include "TransposeConv2d.hpp"
 #include <iostream>
 
+#define MAX(A, B) ((A >= B) ? A : B)
+
 void TransposeConv2d(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_size],
                      DTYPE bias[CFG::out_channels],
                      DTYPE kernel[CFG::out_channels][CFG::in_channels][CFG::kernel_size][CFG::kernel_size],
                      DTYPE out[CFG::out_channels][CFG::out_size][CFG::out_size])
 {
-
-    constexpr int pin_size = CFG::out_size + CFG::kernel_size - 1;
+    // This first part is where most of the weird stuff happens
+    constexpr int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);                           
+    constexpr int pin_size = CFG::in_size + (CFG::in_size-1)*(CFG::stride - 1) +  2*inpad;  
     DTYPE padded_in[CFG::in_channels][pin_size][pin_size];
     for (int c = 0; c < CFG::in_channels; ++c){
         for (int i = 0; i < pin_size; ++i){
@@ -20,7 +23,7 @@ void TransposeConv2d(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_size],
     for (int c = 0; c < CFG::in_channels; ++c){
         for (int h = 0; h < CFG::in_size; ++h){
             for (int w = 0; w < CFG::in_size; ++w){
-                padded_in[c][CFG::pad + h*CFG::stride][CFG::pad + w*CFG::stride] = in[c][h][w]; 
+                padded_in[c][inpad + h*CFG::stride][inpad + w*CFG::stride] = in[c][h][w]; 
             }
         }
     }

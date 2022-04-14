@@ -44,6 +44,7 @@ int main()
     init_mat(in_ptr, CFG::in_channels*CFG::in_size*CFG::in_size, 1);
     init_mat(kernel_ptr,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 1);
     init_mat(bias_ptr, CFG::out_channels, 1);
+    bias[0] = 0;
 
     printmat(in_ptr, CFG::in_size, CFG::in_channels, "in");
 
