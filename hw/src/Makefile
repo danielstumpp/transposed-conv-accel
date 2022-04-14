@@ -1,14 +1,14 @@
-src_files = tconv_tb.cpp TransposeConv2d.cpp
-header_files = ../config.hpp ./TransposeConv2d.hpp
+src_files = ./kernel.cpp ./host.cpp
+header_files = ../config.hpp ./kernel.hpp
 
 .PHONY: all
 
 all: tb
 
 tb: $(src_files) $(header_files)
-	g++ -Wall --std=c++14 -o tb $(src_files)
+	g++ -Wall --std=c++14 -o host $(src_files)
 
 .PHONY: clean
 
 clean:
-	rm tb
+	rm host

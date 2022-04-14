@@ -1,12 +1,12 @@
-
+#pragma once
 
 namespace CFG
 {
     // note: in_size + 2pad - k must be multiple of stride
     // i.e. a = 0 must hold for the current implementation
 
-    constexpr int in_channels = 1;
-    constexpr int out_channels = 1;
+    constexpr int in_channels = 3;
+    constexpr int out_channels = 2;
     constexpr int in_size = 4;
     constexpr int kernel_size = 4;
     constexpr int stride = 3;
