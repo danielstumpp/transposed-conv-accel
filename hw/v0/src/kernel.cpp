@@ -29,7 +29,6 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
     const int pin_size = CFG::in_size + (CFG::in_size-1)*(CFG::stride - 1) +  2*inpad;  
     
     HWTYPE padded_in[CFG::in_channels][pin_size][pin_size];
-    HWTYPE out_buf[CFG::out_channels][CFG::out_size][CFG::out_size];
 
     for (int c = 0; c < CFG::in_channels; ++c){
         for (int i = 0; i < pin_size; ++i){
@@ -50,7 +49,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
     for (int i = 0; i < CFG::out_channels; ++i){
         for (int h = 0; h < CFG::out_size; ++h){
             for (int w = 0; w < CFG::out_size; ++w){
-                out_buf[i][h][w] = bias[i];
+                out[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] = bias[i];
             }
         }
     }
@@ -63,21 +62,12 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
                         for (int q = 0; q < CFG::kernel_size; ++q)
                         {
                             //out[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] += 
-                            out_buf[i][h][w] +=
+                            out[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] +=
                                 kernel[(i*CFG::in_channels*CFG::kernel_size*CFG::kernel_size)+(j*CFG::kernel_size*CFG::kernel_size)+(p*CFG::kernel_size) + q] 
                                     * padded_in[j][h + p][w + q];
                         }
                     }
                 }
-            }
-        }
-    }
-    
-
-    for (int i = 0; i < CFG::out_channels; ++i){
-        for (int h = 0; h < CFG::out_size; ++h){
-            for (int w = 0; w < CFG::out_size; ++w) {
-                out[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] = out_buf[i][h][w];
             }
         }
     }
