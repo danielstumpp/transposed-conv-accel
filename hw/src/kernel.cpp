@@ -22,6 +22,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
 #pragma HLS interface s_axilite port = bias bundle = control
 #pragma HLS interface s_axilite port = kernel bundle = control
 #pragma HLS interface s_axilite port = out bundle = control
+#pragma HLS interface s_axilite port = return bundle = control
 
     // This first part is where most of the weird stuff happens
     const int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);                           
@@ -37,7 +38,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
             }
         }
     }
-    
+
     for (int c = 0; c < CFG::in_channels; ++c){
         for (int h = 0; h < CFG::in_size; ++h){
             for (int w = 0; w < CFG::in_size; ++w){
@@ -49,7 +50,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
     for (int i = 0; i < CFG::out_channels; ++i){
         for (int h = 0; h < CFG::out_size; ++h){
             for (int w = 0; w < CFG::out_size; ++w){
-                out[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] = bias[i];
+                out_buf[i][h][w] = bias[i];
             }
         }
     }
@@ -71,6 +72,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
             }
         }
     }
+    
 
     for (int i = 0; i < CFG::out_channels; ++i){
         for (int h = 0; h < CFG::out_size; ++h){

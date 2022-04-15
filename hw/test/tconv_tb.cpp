@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include "../src/TransposeConv2d.hpp"
-#include "../src/kernel.hpp"
 
 template <typename T>
 void init_mat(T *mat, const int size, const int m)
@@ -62,11 +61,14 @@ int main()
     printmat(in_ptr, CFG::in_size, CFG::in_channels, "in");
 
     TransposeConv2d(in, bias, kernel, out);
-    TransposeConv2d_kernel(in_ptr, bias_ptr, kernel_ptr, out_test);
+    TransposeConv2d_arr(in_ptr, bias_ptr, kernel_ptr, out_test);
 
     printmat(out_ptr, CFG::out_size, CFG::out_channels, "out");
+    printmat(out_test, CFG::out_size, CFG::out_channels, "out");
 
     std::cout << "kernel " << (check(out_ptr, out_test, 1, CFG::out_channels*CFG::out_size*CFG::out_size) ? "PASSED" : "FAILED" ) << std::endl;
+
+    delete[] out_test;
 
     return EXIT_SUCCESS;
 }
