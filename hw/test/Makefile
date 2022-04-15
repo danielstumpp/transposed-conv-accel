@@ -1,5 +1,5 @@
-src_files = ./tconv_tb.cpp ../src/TransposeConv2d.cpp ../src/kernel.cpp
-header_files = ../config.hpp ../src/TransposeConv2d.hpp ../src/kernel.hpp
+src_files = ./tconv_tb.cpp ../src/TransposeConv2d.cpp 
+header_files = ../config.hpp ../src/TransposeConv2d.hpp 
 
 .PHONY: all
 

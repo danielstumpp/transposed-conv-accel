@@ -95,6 +95,12 @@ int main(int argc, char **argv) {
     init_mat(conv_bias, CFG::out_channels, 1);
     conv_bias[0] = 0;
 
+    printmat(conv_in, CFG::in_size, CFG::in_channels, "conv_in");
+    printmat(conv_bias, 1, CFG::out_channels, "conv_bias");
+    printmat(conv_kernel, CFG::kernel_size, CFG::in_channels*CFG::out_channels, "conv_kernel");
+    printmat(conv_out_hw, CFG::out_size, CFG::out_channels, "conv_out_hw");
+    printmat(conv_out_sw, CFG::out_size, CFG::out_channels, "conv_out_sw");
+
     // Generate SW ground truth
     // TODO: Should we compare against 
    TransposeConv2d_arr(conv_in.data(), conv_bias.data(), conv_kernel.data(), conv_out_sw.data()); 
@@ -137,19 +143,19 @@ int main(int argc, char **argv) {
   // Device-to-host communication
   OCL_CHECK(err, cl::Buffer buffer_in(
                      context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
-                     CFG::in_channels*CFG::in_size*CFG::in_size,
+                     sizeof(DTYPE)*CFG::in_channels*CFG::in_size*CFG::in_size,
                      conv_in.data(), &err));
   OCL_CHECK(err, cl::Buffer buffer_bias(
                      context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
-                     CFG::out_channels,
+                     sizeof(DTYPE)*CFG::out_channels,
                      conv_bias.data(), &err));
   OCL_CHECK(err, cl::Buffer buffer_conv_kernel(
                      context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
-                     CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size,
+                     sizeof(DTYPE)*CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size,
                      conv_kernel.data(), &err));
   OCL_CHECK(err, cl::Buffer buffer_out(
                      context, CL_MEM_USE_HOST_PTR ,
-                     CFG::out_channels*CFG::out_size*CFG::out_size,
+                     sizeof(DTYPE)*CFG::out_channels*CFG::out_size*CFG::out_size,
                      conv_out_hw.data(), &err));
 
   OCL_CHECK(err, err = krnl.setArg(0, buffer_in));
@@ -198,17 +204,19 @@ int main(int argc, char **argv) {
   std::cout << "MIN Exection time after " << n_trials << " trials = " << min_time*1000 << "ms" << std::endl;
   std::cout << "AVG Exection time after " << n_trials << " trials = " << avg_time*1000 << "ms" << std::endl;
 
-
-  // OPENCL HOST CODE AREA END
-  std::cout << "Ground truth" << std::endl;
-  printmat(conv_out_sw, CFG::out_size, CFG::out_channels, "conv out GT");
-
-  std::cout << "Test"<<std::endl;
-  printmat(conv_out_hw, CFG::out_size, CFG::out_channels, "conv out test");
-
-  // Compare the results of the Device to the simulation
   bool match = check(conv_out_sw, conv_out_hw, 1, CFG::out_channels*CFG::out_size*CFG::out_size);
 
+  if (!match)
+  {
+    // OPENCL HOST CODE AREA END
+    std::cout << "Ground truth" << std::endl;
+    printmat(conv_out_sw, CFG::out_size, CFG::out_channels, "conv out GT");
+
+    std::cout << "Test"<<std::endl;
+    printmat(conv_out_hw, CFG::out_size, CFG::out_channels, "conv out test");
+  }
+  
   std::cout << "TEST " << (match ? "PASSED" : "FAILED") << std::endl;
+
   return (match ? EXIT_SUCCESS : EXIT_FAILURE);
 }
