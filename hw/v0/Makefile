@@ -14,7 +14,7 @@ include ./utils.mk
 
 XSA := $(call device2xsa, $(DEVICE))
 
-KERNEL_IMPL := kernel.cpp
+KERNEL_IMPL := ./src/kernel.cpp
 
 TEMP_DIR := ./_x.$(TARGET).$(XSA).$(KERNEL_IMPL)
 BUILD_DIR := ./build_dir.$(TARGET).$(XSA).$(KERNEL_IMPL)
@@ -31,7 +31,7 @@ HOST_SRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++11
 LDFLAGS += $(opencl_LDFLAGS)
 
-HOST_SRCS += host.cpp TransposeConv2d.cpp
+HOST_SRCS += ./src/host.cpp ../src/TransposeConv2d.cpp
 
 # Host compiler global settings
 CXXFLAGS += -fmessage-length=0 -std=c++0x
