@@ -95,11 +95,11 @@ int main(int argc, char **argv) {
     init_mat(conv_bias, CFG::out_channels, 1);
     conv_bias[0] = 0;
 
-    printmat(conv_in, CFG::in_size, CFG::in_channels, "conv_in");
-    printmat(conv_bias, 1, CFG::out_channels, "conv_bias");
-    printmat(conv_kernel, CFG::kernel_size, CFG::in_channels*CFG::out_channels, "conv_kernel");
-    printmat(conv_out_hw, CFG::out_size, CFG::out_channels, "conv_out_hw");
-    printmat(conv_out_sw, CFG::out_size, CFG::out_channels, "conv_out_sw");
+    //printmat(conv_in, CFG::in_size, CFG::in_channels, "conv_in");
+    //printmat(conv_bias, 1, CFG::out_channels, "conv_bias");
+    //printmat(conv_kernel, CFG::kernel_size, CFG::in_channels*CFG::out_channels, "conv_kernel");
+    //printmat(conv_out_hw, CFG::out_size, CFG::out_channels, "conv_out_hw");
+    //printmat(conv_out_sw, CFG::out_size, CFG::out_channels, "conv_out_sw");
 
     // Generate SW ground truth
     // TODO: Should we compare against 
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
   // recommended
   // to always use enqueueTask() for invoking HLS kernel
 
-  const int n_trials = 1;
+  const int n_trials = 10;
   double cumu_time = 0;
   auto trial_times = std::vector<double>();
   for (int i = 0; i < n_trials; i++) {
