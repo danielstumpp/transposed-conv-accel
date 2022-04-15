@@ -190,6 +190,7 @@ int main(int argc, char **argv) {
 	  kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
 	  kernel_time_in_sec = kernel_time.count();
 	  cumu_time += kernel_time_in_sec;
+      //std::cout << kernel_time_in_sec << std::endl;
 	  trial_times.push_back(kernel_time_in_sec);
 
   // Copy Result from Device Global Memory to Host Local Memory
