@@ -2,7 +2,7 @@ DEVICE := xilinx_u200_xdma_201830_2
 
 # Points to top directory of Git repository
 # TODO: make more general
-COMMON_REPO = ../../../../rc4dl/Vitis_Accel_Examples
+COMMON_REPO = ../
 PWD = $(shell readlink -f .)
 ABS_COMMON_REPO = $(shell readlink -f $(COMMON_REPO))
 
