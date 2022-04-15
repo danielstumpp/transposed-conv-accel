@@ -16,8 +16,8 @@ XSA := $(call device2xsa, $(DEVICE))
 
 KERNEL_IMPL := ./src/kernel.cpp
 
-TEMP_DIR := ./_x.$(TARGET).$(XSA).$(KERNEL_IMPL)
-BUILD_DIR := ./build_dir.$(TARGET).$(XSA).$(KERNEL_IMPL)
+TEMP_DIR := ./_x.$(TARGET)
+BUILD_DIR := ./build_dir.$(TARGET)
 
 VPP := v++
 SDCARD := sd_card
