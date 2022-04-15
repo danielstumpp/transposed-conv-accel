@@ -42,4 +42,5 @@ _x.*
 *.log
 .Xil
 .run
-build_dir.*
+build_dir.sw_emu
+build_dir.hw_emu
