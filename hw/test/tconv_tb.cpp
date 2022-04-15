@@ -16,7 +16,12 @@ const bool check(T* A, T* B, const int M, const int N)
 {
     for (int i = 0; i < M*N; i++) {
         if (A[i] != B[i])
+        {
+            printf("%d != %d\n",A[i], B[i]);
             return false;
+        }
+
+            
     }
     return true;
 }
@@ -56,15 +61,15 @@ int main()
     init_mat(in_ptr, CFG::in_channels*CFG::in_size*CFG::in_size, 1);
     init_mat(kernel_ptr,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 1);
     init_mat(bias_ptr, CFG::out_channels, 1);
-    bias[0] = 0;
 
-    printmat(in_ptr, CFG::in_size, CFG::in_channels, "in");
+
+    // printmat(in_ptr, CFG::in_size, CFG::in_channels, "in");
 
     TransposeConv2d(in, bias, kernel, out);
     TransposeConv2d_arr(in_ptr, bias_ptr, kernel_ptr, out_test);
 
-    printmat(out_ptr, CFG::out_size, CFG::out_channels, "out");
-    printmat(out_test, CFG::out_size, CFG::out_channels, "out");
+    // printmat(out_ptr, CFG::out_size, CFG::out_channels, "out");
+    // printmat(out_test, CFG::out_size, CFG::out_channels, "out_test");
 
     std::cout << "kernel " << (check(out_ptr, out_test, 1, CFG::out_channels*CFG::out_size*CFG::out_size) ? "PASSED" : "FAILED" ) << std::endl;
 
