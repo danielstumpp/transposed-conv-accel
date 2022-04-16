@@ -16,6 +16,7 @@ namespace CFG
 
     const int out_size = stride * (in_size - 1) + kernel_size - 2 * pad;
 
+    const int cTile = 2;
 } // namespace CFG
 
 
