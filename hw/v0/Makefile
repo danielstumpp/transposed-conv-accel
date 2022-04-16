@@ -9,6 +9,7 @@ ABS_COMMON_REPO = $(shell readlink -f $(COMMON_REPO))
 TARGET := hw
 HOST_ARCH := x86
 SYSROOT := 
+CLK := 200000000
 
 include ./utils.mk
 
@@ -75,7 +76,7 @@ build: $(BINARY_CONTAINERS)
 # Building kernel
 $(TEMP_DIR)/transpose_conv.xo: $(KERNEL_IMPL)
 	mkdir -p $(TEMP_DIR)
-	$(VPP) $(CLFLAGS) --temp_dir $(TEMP_DIR) -c -k TransposeConv2d_kernel -I'$(<D)' -o'$@' '$<' 
+	$(VPP) $(CLFLAGS) --temp_dir $(TEMP_DIR) -c -k TransposeConv2d_kernel --hls.clock $(CLK)Hz:TransposeConv2d_kernel -I'$(<D)' -o'$@' '$<' 
 $(BUILD_DIR)/transpose_conv.xclbin: $(BINARY_CONTAINER_kernel_OBJS)
 	mkdir -p $(BUILD_DIR)
 	$(VPP) $(CLFLAGS) --temp_dir $(BUILD_DIR) -l $(LDCLFLAGS) -o'$@' $(+)

@@ -6,7 +6,7 @@ header_files = ../config.hpp ../src/TransposeConv2d.hpp
 all: tb
 
 tb: $(src_files) $(header_files)
-	g++ -Wall --std=c++14 -o tb $(src_files)
+	g++ -Wall --std=c++11 -o tb $(src_files)
 
 .PHONY: clean
 

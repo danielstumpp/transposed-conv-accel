@@ -14,10 +14,10 @@ extern "C" {
 // v0: access buffers directly from DRAM as 1-D array
 void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *out)
 {
-#pragma HLS interface m_axi port = in offset = slave bundle = gmem
-#pragma HLS interface m_axi port = bias offset = slave bundle = gmem
-#pragma HLS interface m_axi port = kernel offset = slave bundle = gmem
-#pragma HLS interface m_axi port = out offset = slave bundle = gmem
+#pragma HLS interface m_axi port = in bundle = gmem0
+#pragma HLS interface m_axi port = bias bundle = gmem1
+#pragma HLS interface m_axi port = kernel bundle = gmem2
+#pragma HLS interface m_axi port = out bundle = gmem3
 #pragma HLS interface s_axilite port = in bundle = control
 #pragma HLS interface s_axilite port = bias bundle = control
 #pragma HLS interface s_axilite port = kernel bundle = control
@@ -38,7 +38,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
     }
     
     
-    for (ct = 0; ct < CFG::in_channels; ct += CFG::cTile){
+    for (int ct = 0; ct < CFG::in_channels; ct += CFG::cTile){
         for (int c = 0; c < CFG::cTile; ++c){
             for (int i = 0; i < pin_size; ++i){
                 for (int j = 0; j < pin_size; ++j){
