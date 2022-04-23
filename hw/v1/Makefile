@@ -9,7 +9,7 @@ ABS_COMMON_REPO = $(shell readlink -f $(COMMON_REPO))
 TARGET := hw
 HOST_ARCH := x86
 SYSROOT := 
-CLK := 200000000
+CLK := 300000000
 
 include ./utils.mk
 

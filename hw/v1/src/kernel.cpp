@@ -33,7 +33,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
     }
 
     // This first part is where most of the weird stuff happens
-    constexpr int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);                           
+    const int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);                           
 
     for (int i = 0; i < CFG::out_channels; ++i){
         for (int j = 0; j < CFG::in_channels; ++j){
@@ -42,9 +42,8 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
                     for (int p = 0; p < CFG::kernel_size; ++p) {
                         for (int q = 0; q < CFG::kernel_size; ++q)
                         {
-                            int16_t val;
                             if ((h + p) % CFG::stride == inpad && (w+q) % CFG::stride == inpad){
-                                val = in[j * CFG::in_size * CFG::in_size + (h/CFG::stride) * CFG::in_size + (w/CFG::stride)];
+                               HWTYPE val = in[j * CFG::in_size * CFG::in_size + (h/CFG::stride) * CFG::in_size + (w/CFG::stride)];
 
                                 out[i * CFG::out_size * CFG::out_size + h * CFG::out_size + w] +=
                                     kernel[(i * CFG::in_channels * CFG::kernel_size * CFG::kernel_size) + (j * CFG::kernel_size * CFG::kernel_size) + (p * CFG::kernel_size) + q] * val;
