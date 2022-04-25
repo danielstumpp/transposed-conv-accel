@@ -60,36 +60,77 @@ void TransposeConv2d(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_size],
 void TransposeConv2d_arr(DTYPE *in, DTYPE *bias, DTYPE *kernel, DTYPE *out)
 {
 
-    for (int i = 0; i < CFG::out_channels; ++i){
-        for (int h = 0; h < CFG::out_size; ++h){
-            for (int w = 0; w < CFG::out_size; ++w){
-                out[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] = bias[i];
-            }
-        }
-    }
+    static const int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);
 
-    // This first part is where most of the weird stuff happens
-    constexpr int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);                           
+    int16_t weights_block[CFG::ocTile][CFG::in_channels][CFG::kernel_size][CFG::kernel_size];
+    int16_t out_block[CFG::ocTile][CFG::osTile][CFG::osTile];
+    int16_t in_block[CFG::in_channels][CFG::osTile/CFG::stride][CFG::osTile/CFG::stride];
 
-    for (int i = 0; i < CFG::out_channels; ++i){
-        for (int j = 0; j < CFG::in_channels; ++j){
-            for (int h = 0; h < CFG::out_size; ++h){
-                for (int w = 0; w < CFG::out_size; ++w) {
-                    for (int p = 0; p < CFG::kernel_size; ++p) {
-                        for (int q = 0; q < CFG::kernel_size; ++q)
-                        {
-                            int16_t val;
-                            if ((h + p) % CFG::stride == inpad && (w+q) % CFG::stride == inpad){
-                                val = in[j * CFG::in_size * CFG::in_size + (h/CFG::stride) * CFG::in_size + (w/CFG::stride)];
+    for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
+        for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
+            for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
 
-                                out[i * CFG::out_size * CFG::out_size + h * CFG::out_size + w] +=
-                                    kernel[(i * CFG::in_channels * CFG::kernel_size * CFG::kernel_size) + (j * CFG::kernel_size * CFG::kernel_size) + (p * CFG::kernel_size) + q] * val;
-                            }                           
+                // load bias into output block
+                for (int h = ht; h < MIN(ht + CFG::osTile, CFG::out_size); ++h){
+                    for (int w = wt; w < MIN(wt + CFG::osTile, CFG::out_size); ++w){
+                        for (int i = it; i < MIN(it + CFG::ocTile, CFG::out_channels); ++i){
+                            out_block[i - it][h - ht][w - wt] = bias[i];
                         }
                     }
                 }
-            }
+
+                // load kernel weights
+                for (int i = it; i < MIN(it + CFG::ocTile, CFG::out_channels); ++i){
+                    for (int j = 0; j < CFG::in_channels; ++j){
+                        for (int p = 0; p < CFG::kernel_size; ++p){
+                            for (int q = 0; q < CFG::kernel_size; ++q){
+                                weights_block[i - it][j][p][q] = kernel[(i * CFG::in_channels * CFG::kernel_size * CFG::kernel_size) + (j * CFG::kernel_size * CFG::kernel_size) + (p * CFG::kernel_size) + q];
+                            }
+                        }
+                    }
+                }
+
+                // load input features
+                for (int h = ht; h < MIN(ht + CFG::osTile, CFG::out_size); ++h){
+                    for (int w = wt; w < MIN(wt + CFG::osTile, CFG::out_size); ++w){
+                        for (int j = 0; j < CFG::in_channels; ++j){
+                            //in_block[j][h - ht][w - wt] = in[j * CFG::in_size * CFG::in_size + (h / CFG::stride) * CFG::in_size + (w / CFG::stride)];
+                        }
+                    }
+                }
+
+                // perform convolution
+                for (int h = ht; h < MIN(ht + CFG::osTile, CFG::out_size); ++h){
+                    for (int w = wt; w < MIN(wt + CFG::osTile, CFG::out_size); ++w){
+                        for (int i = it; i < MIN(it + CFG::ocTile, CFG::out_channels); ++i){
+                            for (int j = 0; j < CFG::in_channels; ++j){
+                                for (int p = 0; p < CFG::kernel_size; ++p) {
+                                    for (int q = 0; q < CFG::kernel_size; ++q)
+                                    {
+                                        int16_t val;
+                                        if ((h + p) % CFG::stride == inpad && (w+q) % CFG::stride == inpad){
+                                            val = in[j * CFG::in_size * CFG::in_size + (h/CFG::stride) * CFG::in_size + (w/CFG::stride)];
+                                            out_block[i - it][h - ht][w - wt] += weights_block[i - it][j][p][q] * val;
+                                        }                           
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } 
+
+                // write output to DRAM
+                for (int h = ht; h < MIN(ht + CFG::osTile, CFG::out_size); ++h){
+                    for (int w = wt; w < MIN(wt + CFG::osTile, CFG::out_size); ++w){
+                        for (int i = it; i < MIN(it + CFG::ocTile, CFG::out_channels); ++i){
+                            out[i * CFG::out_size * CFG::out_size + h * CFG::out_size + w] = out_block[i - it][h - ht][w - wt];
+                        }
+                    }
+                }
+            }  
         }
-    }
+    }                          
+
+    
     
 }

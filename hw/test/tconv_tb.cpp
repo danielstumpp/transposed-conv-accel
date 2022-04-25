@@ -58,9 +58,9 @@ int main()
     DTYPE *out_ptr = &out[0][0][0];
     DTYPE *bias_ptr = &bias[0];
 
-    init_mat(in_ptr, CFG::in_channels*CFG::in_size*CFG::in_size, 1);
-    init_mat(kernel_ptr,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 1);
-    init_mat(bias_ptr, CFG::out_channels, 1);
+    init_mat(in_ptr, CFG::in_channels*CFG::in_size*CFG::in_size, 3);
+    init_mat(kernel_ptr,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 6);
+    init_mat(bias_ptr, CFG::out_channels, 5);
 
 
     // printmat(in_ptr, CFG::in_size, CFG::in_channels, "in");
