@@ -7,7 +7,7 @@ namespace CFG
 
     const int in_channels = 256;
     const int out_channels = 128;
-    const int in_size = 100;
+    const int in_size = 100; // 100
     const int kernel_size = 2;
     const int stride = 2;
     const int pad = 0;
@@ -17,6 +17,10 @@ namespace CFG
     const int out_size = stride * (in_size - 1) + kernel_size - 2 * pad;
 
     const int cTile = 2;
+
+    const int ocTile = 16;
+    const int osTile = 50;
+
 } // namespace CFG
 
 
