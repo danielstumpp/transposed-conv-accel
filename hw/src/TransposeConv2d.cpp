@@ -153,7 +153,7 @@ void TransposeConv2d_arr(DTYPE *in, DTYPE *bias, DTYPE *kernel, DTYPE *out)
                             for (int p = 0; p < CFG::kernel_size; ++p) {
                                 for (int q = 0; q < CFG::kernel_size; ++q){
                                     if ((h + p) % CFG::stride == inpad && (w+q) % CFG::stride == inpad){
-                                        in_block[j][h - ht][w - wt] = in[j * CFG::in_size * CFG::in_size + (h/CFG::stride) * CFG::in_size + (w/CFG::stride)]; 
+                                        in_block[j][(h - ht) / CFG::stride][(w - wt) / CFG::stride] = in[j * CFG::in_size * CFG::in_size + (h / CFG::stride) * CFG::in_size + (w / CFG::stride)];
                                     }   
                                 }
                             }
@@ -170,8 +170,10 @@ void TransposeConv2d_arr(DTYPE *in, DTYPE *bias, DTYPE *kernel, DTYPE *out)
                                     for (int q = 0; q < CFG::kernel_size; ++q)
                                     {
                                         int16_t val;
+                                        
                                         if ((h + p) % CFG::stride == inpad && (w+q) % CFG::stride == inpad){
-                                            val = in[j * CFG::in_size * CFG::in_size + (h/CFG::stride) * CFG::in_size + (w/CFG::stride)];
+                                            //val = in[j * CFG::in_size * CFG::in_size + (h/CFG::stride) * CFG::in_size + (w/CFG::stride)];
+                                            val = in_block[j][(h - ht)/CFG::stride][(w - wt)/CFG::stride];
                                             out_block[i - it][h - ht][w - wt] += weights_block[i - it][j][p][q] * val;
                                         }                           
                                     }

@@ -19,7 +19,7 @@ namespace CFG
     const int cTile = 2;
 
     const int ocTile = 4;
-    const int osTile = 10;
+    const int osTile = 50;
 
 } // namespace CFG
 
