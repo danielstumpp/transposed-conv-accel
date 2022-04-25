@@ -45,35 +45,33 @@ void printmat(T *mat, const int size, const int channels, std::string name)
 int main()
 {
 
-    static DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_size];
-    static DTYPE kernel[CFG::out_channels][CFG::in_channels][CFG::kernel_size][CFG::kernel_size];
-    static DTYPE out[CFG::out_channels][CFG::out_size][CFG::out_size];
-    static DTYPE bias[CFG::out_channels];
+    DTYPE *in = new DTYPE[CFG::in_channels*CFG::in_size*CFG::in_size];
+    DTYPE *kernel = new DTYPE[CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size];
+    DTYPE *out = new DTYPE[CFG::out_channels*CFG::out_size*CFG::out_size];
+    DTYPE *bias = new DTYPE[CFG::out_channels];
 
     auto out_test = new DTYPE[CFG::out_channels*CFG::out_size*CFG::out_size];
 
-
-    DTYPE *in_ptr = &in[0][0][0];
-    DTYPE *kernel_ptr = &kernel[0][0][0][0];
-    DTYPE *out_ptr = &out[0][0][0];
-    DTYPE *bias_ptr = &bias[0];
-
-    init_mat(in_ptr, CFG::in_channels*CFG::in_size*CFG::in_size, 3);
-    init_mat(kernel_ptr,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 6);
-    init_mat(bias_ptr, CFG::out_channels, 5);
+    init_mat(in, CFG::in_channels*CFG::in_size*CFG::in_size, 3);
+    init_mat(kernel,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 6);
+    init_mat(bias, CFG::out_channels, 5);
 
 
     // printmat(in_ptr, CFG::in_size, CFG::in_channels, "in");
 
-    TransposeConv2d(in, bias, kernel, out);
-    TransposeConv2d_arr(in_ptr, bias_ptr, kernel_ptr, out_test);
+    TransposeConv2d_arr_gold(in, bias, kernel, out);
+    TransposeConv2d_arr(in, bias, kernel, out_test);
 
     // printmat(out_ptr, CFG::out_size, CFG::out_channels, "out");
     // printmat(out_test, CFG::out_size, CFG::out_channels, "out_test");
 
-    std::cout << "kernel " << (check(out_ptr, out_test, 1, CFG::out_channels*CFG::out_size*CFG::out_size) ? "PASSED" : "FAILED" ) << std::endl;
+    std::cout << "kernel " << (check(out, out_test, 1, CFG::out_channels*CFG::out_size*CFG::out_size) ? "PASSED" : "FAILED" ) << std::endl;
 
     delete[] out_test;
+    delete[] in;
+    delete[] kernel;
+    delete[] out;
+    delete[] bias;
 
     return EXIT_SUCCESS;
 }

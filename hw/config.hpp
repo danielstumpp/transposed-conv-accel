@@ -5,8 +5,8 @@ namespace CFG
     // note: in_size + 2pad - k must be multiple of stride
     // i.e. a = 0 must hold for the current implementation
 
-    const int in_channels = 256; // 256;
-    const int out_channels = 128; //128;
+    const int in_channels = 8; // 256;
+    const int out_channels = 4; //128;
     const int in_size = 100; // 100
     const int kernel_size = 2;
     const int stride = 2;
