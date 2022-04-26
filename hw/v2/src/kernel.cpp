@@ -29,6 +29,9 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
     HWTYPE out_block[CFG::ocTile][CFG::osTile][CFG::osTile];
     HWTYPE in_block[CFG::in_channels][CFG::osTile/CFG::stride][CFG::osTile/CFG::stride];
 
+    #pragma HLS array_partition variable=weights_block dim=2 type=complete
+    #pragma HLS array_partition variable=in_block dim=1 type=complete
+
     tile_h_loop: for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         tile_w_loop: for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
             tile_i_loop: for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
