@@ -77,6 +77,7 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
                         conv_h_loop: for (int h = ht; h < MIN(ht + CFG::osTile, CFG::out_size); ++h){
                             conv_w_loop: for (int w = wt; w < MIN(wt + CFG::osTile, CFG::out_size); ++w){
                                 conv_i_loop: for (int i = it; i < MIN(it + CFG::ocTile, CFG::out_channels); ++i){
+                                    #pragma HLS pipeline II=1
                                     conv_j_loop: for (int j = 0; j < CFG::in_channels; ++j){
                                         #pragma HLS unroll
                                         conv_zero_check: if ((h + p) % CFG::stride == inpad && (w+q) % CFG::stride == inpad){
