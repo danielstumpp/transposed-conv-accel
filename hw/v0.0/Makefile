@@ -9,7 +9,7 @@ ABS_COMMON_REPO = $(shell readlink -f $(COMMON_REPO))
 TARGET := hw
 HOST_ARCH := x86
 SYSROOT := 
-CLK := 200000000
+CLK := 300000000
 
 include ./utils.mk
 
@@ -57,14 +57,20 @@ EMU_DIR = $(SDCARD)/data/emulation
 
 BINARY_CONTAINERS += $(BUILD_DIR)/transpose_conv.xclbin
 BINARY_CONTAINER_kernel_OBJS += $(TEMP_DIR)/transpose_conv.xo
-
+RES_DIR := artifacts/
 
 CP = cp -rf
 
 .PHONY: all clean cleanall docs emconfig
 all: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig sd_card 
 ifneq ($(TARGET),$(filter $(TARGET),sw_emu hw_emu))
-	cp $(BUILD_DIR)/transpose_conv.xclbin .
+	mkdir -p $(RES_DIR)
+	cp $(EXECUTABLE) $(RES_DIR)
+	cp $(BUILD_DIR)/transpose_conv.xclbin $(RES_DIR)
+	cp $(BUILD_DIR)/reports/link/imp/kernel_util_routed.rpt $(RES_DIR) 
+	cp $(BUILD_DIR)/reports/link/imp/xilinx_u200_xdma_201830_2_bb_locked_timing_summary_routed.rpt $(RES_DIR) 
+	cp $(TEMP_DIR)/reports/transpose_conv/hls_reports/TransposeConv2d_kernel_csynth.rpt $(RES_DIR)
+	cp $(TEMP_DIR)/logs/transpose_conv/TransposeConv2d_kernel_vivado_hls.log $(RES_DIR)	
 endif
 .PHONY: exe
 exe: $(EXECUTABLE)
