@@ -33,8 +33,8 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
     #pragma HLS array_partition variable=weights_block dim=3 complete
     #pragma HLS array_partition variable=weights_block dim=4 complete
     #pragma HLS array_partition variable=in_block dim=1 complete
-    #pragma HLS array_partition variable=out_block dim=2 complete
-    #pragma HLS array_partition variable=out_block dim=3 complete
+    //#pragma HLS array_partition variable=out_block dim=2 complete
+    //#pragma HLS array_partition variable=out_block dim=3 complete
 
     tile_h_loop: for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         tile_w_loop: for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
@@ -44,9 +44,9 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
                 for (int i = 0; i < CFG::ocTile; ++i){
                     HWTYPE b = bias[it + i];
                     for (int h = 0; h < CFG::osTile; ++h){
-                        #pragma HLS unroll
+                        //#pragma HLS unroll
                         for (int w = 0; w < CFG::osTile; ++w){
-                            #pragma HLS unroll
+                            //#pragma HLS unroll
                             out_block[i][h][w] = b;
                         }
                     }

@@ -53,7 +53,10 @@ const bool check(std::vector<DTYPE, aligned_allocator<DTYPE>> &A, std::vector<DT
 {
     for (int i = 0; i < M*N; i++) {
         if (A[i] != B[i])
-            return false;
+        {
+            std::cout<<A[i]<<"  "<<B[i]<<"  "<<i<<std::endl;
+        }
+            //return false;
     }
     return true;
 }
@@ -90,10 +93,10 @@ int main(int argc, char **argv) {
 	std::vector<DTYPE, aligned_allocator<DTYPE>> conv_out_hw(CFG::out_channels*CFG::out_size*CFG::out_size);
 	std::vector<DTYPE, aligned_allocator<DTYPE>> conv_out_sw(CFG::out_channels*CFG::out_size*CFG::out_size);
 
-	init_mat(conv_in, CFG::in_channels*CFG::in_size*CFG::in_size, 1);
-    init_mat(conv_kernel,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 1);
+	init_mat(conv_in, CFG::in_channels*CFG::in_size*CFG::in_size, 5);
+    init_mat(conv_kernel,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 3);
     init_mat(conv_bias, CFG::out_channels, 1);
-    conv_bias[0] = 0;
+    //conv_bias[0] = 0;
 
     //printmat(conv_in, CFG::in_size, CFG::in_channels, "conv_in");
     //printmat(conv_bias, 1, CFG::out_channels, "conv_bias");
