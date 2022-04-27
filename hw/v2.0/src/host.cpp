@@ -51,10 +51,19 @@ void init_mat(std::vector<DTYPE, aligned_allocator<DTYPE>> &mat, const int size,
 
 const bool check(std::vector<DTYPE, aligned_allocator<DTYPE>> &A, std::vector<DTYPE, aligned_allocator<DTYPE>> &B, const int M, const int N)
 {
-    for (int i = 0; i < M*N; i++) {
-        if (A[i] != B[i])
-            return false;
+
+  // update check to account for transposed output format
+  for (int i = 0; i < CFG::out_channels; ++i){
+    for (int h = 0; h < CFG::out_size; ++h){
+      for (int w = 0; w < CFG::out_size; ++w){
+        if (A[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] != B[h*CFG::out_size*CFG::out_channels + w*CFG::out_channels + i])
+        {
+          std::cout<<A[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w]<<"  "<<B[h*CFG::out_size*CFG::out_channels + w*CFG::out_channels + i]<<std::endl;
+          //return false;
+        }
+      }
     }
+  }
     return true;
 }
 
