@@ -32,7 +32,7 @@ void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel
 
     #pragma HLS array_partition variable=weights_block dim=4 complete
     #pragma HLS array_partition variable=in_block dim=3 complete
-    #pragma HLS array_partition variable=out_block dim=3 complete
+    //#pragma HLS array_partition variable=out_block dim=3 complete
 
     for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
@@ -42,10 +42,9 @@ void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel
                 for (int h = 0; h < CFG::osTile; ++h){
                     for (int w = 0; w < CFG::osTile; ++w){
                         for (int ii = 0; ii < CFG::ocTile/WIDTH256; ++ii){
-                            #pragma HLS pipeline II=1
                             block256_t b_temp = bias[it/WIDTH256 + ii];
                             for (int i = 0; i < WIDTH256; ++i){
-                                #pragma HLS unroll
+                                #pragma HLS pipeline II=1
                                 HWTYPE b = (HWTYPE)b_temp(WORD_BITS * (i + 1) - 1, WORD_BITS * i);
                                 out_block[h][w][ii*WIDTH256 + i] = b;
                             }
@@ -112,10 +111,9 @@ void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel
                 for (int h = 0; h < CFG::osTile; ++h){
                     for (int w = 0; w < CFG::osTile; ++w){
                         for (int ii = 0; ii < CFG::ocTile/WIDTH256; ++ii){
-                            #pragma HLS pipeline II=1
                             block256_t out_temp;
                             for (int i = 0; i < WIDTH256; ++i){
-                                #pragma HLS unroll
+                                #pragma HLS pipeline II=1
                                 out_temp(WORD_BITS * (i+1) - 1, WORD_BITS*i) = out_block[h][w][ii*WIDTH256 + i];
                             }
                             out[(h + ht) * CFG::out_size * CFG::out_channels/WIDTH256 + (w + wt) * CFG::out_channels/WIDTH256 + (ii + it/WIDTH256)] = out_temp;
