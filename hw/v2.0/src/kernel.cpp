@@ -12,7 +12,7 @@ void TransposeConv2d_kernel(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_siz
 
 extern "C" {
 
-void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, block256_t *out)
+void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel, block256_t *out)
 {
 #pragma HLS interface m_axi port = in bundle = gmem0
 #pragma HLS interface m_axi port = bias bundle = gmem1
@@ -40,21 +40,30 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, block256_t
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
 
                 // load bias into output block
-                for (int i = 0; i < CFG::ocTile; ++i){
-                    HWTYPE b = bias[it + i];
-                    for (int h = 0; h < CFG::osTile; ++h){
-                        for (int w = 0; w < CFG::osTile; ++w){
-                            out_block[h][w][i] = b;
+                for (int h = 0; h < CFG::osTile; ++h){
+                    for (int w = 0; w < CFG::osTile; ++w){
+                        for (int ii = 0; ii < CFG::ocTile/WIDTH256; ++ii){
+                            block256_t b_temp = bias[it/WIDTH256 + ii];
+                            for (int i = 0; i < WIDTH256; ++i)
+                            {
+                                HWTYPE b = (HWTYPE)b_temp(WORD_BITS * (i + 1) - 1, WORD_BITS * i);
+                                out_block[h][w][ii*WIDTH256 + i] = b;
+                            }
                         }
-                    }
+                    } 
                 }
 
                 // load kernel weights
                 for (int i = 0; i < CFG::ocTile; ++i){
-                    for (int j = 0; j < CFG::in_channels; ++j){
-                        for (int p = 0; p < CFG::kernel_size; ++p){
-                            for (int q = 0; q < CFG::kernel_size; ++q){
-                                weights_block[i][p][q][j] = kernel[((i + it) * CFG::in_channels * CFG::kernel_size * CFG::kernel_size) + (p * CFG::kernel_size * CFG::in_channels) + (p * CFG::in_channels) + j];
+                    for (int p = 0; p < CFG::kernel_size; ++p){
+                        for (int q = 0; q < CFG::kernel_size; ++q){
+                            for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+                                block512_t weights_temp = kernel[((i + it) * CFG::in_channels * CFG::kernel_size * CFG::kernel_size / WIDTH512) + (p * CFG::kernel_size * CFG::in_channels / WIDTH512) + (p * CFG::in_channels / WIDTH512) + jj];
+                                for (int j = 0; j < WIDTH512; ++j)
+                                {
+                                    ap_int<16> val = weights_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
+                                    weights_block[i][p][q][jj*WIDTH512 + j] = (HWTYPE) val;
+                                }
                             }
                         }
                     }
@@ -63,8 +72,13 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, block256_t
                 // load input features
                 for (int h = 0; h < CFG::osTile; ++h){
                     for (int w = 0; w < CFG::osTile; ++w){
-                        for (int j = 0; j < CFG::in_channels; ++j){
-                            in_block[h / CFG::stride][w / CFG::stride][j] = in[((h + ht) / CFG::stride) * CFG::in_size * CFG::in_channels + ((w + wt) / CFG::stride) * CFG::in_channels + j];
+                        for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+                            block512_t in_temp = in[((h + ht) / CFG::stride) * CFG::in_size * CFG::in_channels/WIDTH512 + ((w + wt) / CFG::stride) * CFG::in_channels/WIDTH512 + jj];
+                            for (int j = 0; j < WIDTH512; ++j)
+                            {
+                                ap_int<16> val = in_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
+                                in_block[h / CFG::stride][w / CFG::stride][jj*WIDTH512 + j] = (HWTYPE) val;
+                            }
                         }
                     }
                 }

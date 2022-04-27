@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 
 	init_mat(conv_in, CFG::in_channels*CFG::in_size*CFG::in_size, 5);
     init_mat(conv_kernel,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 3);
-    init_mat(conv_bias, CFG::out_channels, 2);
+    init_mat(conv_bias, CFG::out_channels, 1);
     //conv_bias[0] = 0;
 
     //printmat(conv_in, CFG::in_size, CFG::in_channels, "conv_in");
