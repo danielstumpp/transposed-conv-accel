@@ -1,4 +1,5 @@
 #include "kernel.hpp"
+#include "ap_int.h"
 
 #define MAX(A, B) ((A >= B) ? A : B)
 
@@ -6,11 +7,11 @@
 
 extern "C" {
 
-void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *out)
+void TransposeConv2d_kernel(block_t *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *out)
 {
 #pragma HLS interface m_axi port = in bundle = gmem0
-#pragma HLS interface m_axi port = bias bundle = gmem0
-#pragma HLS interface m_axi port = kernel bundle = gmem1
+#pragma HLS interface m_axi port = bias bundle = gmem1
+#pragma HLS interface m_axi port = kernel bundle = gmem2
 #pragma HLS interface m_axi port = out bundle = gmem1
 #pragma HLS interface s_axilite port = in bundle = control
 #pragma HLS interface s_axilite port = bias bundle = control
@@ -90,9 +91,15 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
 
                 // write output to DRAM
                 write_out_i_loop: for (int i = 0; i < CFG::ocTile; ++i){
-                    write_out_h_loop: for (int h = 0; h < CFG::osTile; ++h){
-                        write_out_w_loop: for (int w = 0; w < CFG::osTile; ++w){
-                            out[(i + it) * CFG::out_size * CFG::out_size + (h + ht) * CFG::out_size + (w + wt)] = out_block[i][h][w];
+                    write_out_h_loop: for (int h = 0; h < CFG::osTile; ++h){                       
+                        write_out_w_loop: for (int ww = 0; ww < CFG::osTile / OS_BW; ++ww){
+                            #pragma HLS pipeline II=1
+                            os_block_t out_temp;
+                            for (int w = 0; w < OS_BW; ++w){
+                                #pragma HLS unroll
+                                out_temp(WORD_BITS * (w + 1) - 1, WORD_BITS * w) = out_block[i][h][ww * OS_BW + w];
+                            }
+                            out[(i + it) * CFG::out_size * CFG::out_size + (h + ht) * CFG::out_size / OS_BW + (ww + wt)] = out_temp;
                         }
                     }
                 }
