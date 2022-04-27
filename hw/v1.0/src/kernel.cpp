@@ -73,9 +73,9 @@ void TransposeConv2d_kernel(HWTYPE *in, HWTYPE *bias, HWTYPE *kernel, HWTYPE *ou
                 // perform convolution
                 for (int p = 0; p < CFG::kernel_size; ++p) {
                     for (int q = 0; q < CFG::kernel_size; ++q){
-                        for (int h = 0; h < CFG::osTile; ++h){
-                            for (int w = 0; w < CFG::osTile; ++w){
-                                for (int i = 0; i < CFG::ocTile; ++i){
+                        for (int i = 0; i < CFG::ocTile; ++i){
+                            for (int h = 0; h < CFG::osTile; ++h){
+                                for (int w = 0; w < CFG::osTile; ++w){
                                     #pragma HLS pipeline II=1
                                     HWTYPE acc = 0;
                                     for (int j = 0; j < CFG::in_channels; ++j){
