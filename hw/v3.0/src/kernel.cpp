@@ -5,7 +5,7 @@
 #define MAX(A, B) ((A >= B) ? A : B)
 
 
-void read_in(block512_t *in, hls::stream<HWTYPE> &in_stream) {
+void read_in(block512_t *in, hls::stream<block512_t> &in_stream) {
     for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
@@ -14,11 +14,7 @@ void read_in(block512_t *in, hls::stream<HWTYPE> &in_stream) {
                     for (int w = 0; w < CFG::osTile; ++w){
                         for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
                             block512_t in_temp = in[((h + ht) / CFG::stride) * CFG::in_size * CFG::in_channels/WIDTH512 + ((w + wt) / CFG::stride) * CFG::in_channels/WIDTH512 + jj];
-                            for (int j = 0; j < WIDTH512; ++j){
-                                #pragma HLS pipeline
-                                ap_int<16> val = in_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
-                                in_stream.write((HWTYPE) val);
-                            }
+                            in_stream.write(in_temp);
                         }
                     }
                 }
@@ -49,7 +45,7 @@ void read_bias(block256_t *bias, hls::stream<HWTYPE> &bias_stream) {
     }
 }
 
-void read_kernel(block512_t *kernel, hls::stream<HWTYPE> &kernel_stream) {
+void read_kernel(block512_t *kernel, hls::stream<block512_t> &kernel_stream) {
     for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
@@ -58,12 +54,9 @@ void read_kernel(block512_t *kernel, hls::stream<HWTYPE> &kernel_stream) {
                     for (int p = 0; p < CFG::kernel_size; ++p){
                         for (int q = 0; q < CFG::kernel_size; ++q){
                             for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+                                #pragma HLS pipeline
                                 block512_t weights_temp = kernel[((i + it) * CFG::in_channels * CFG::kernel_size * CFG::kernel_size / WIDTH512) + (p * CFG::kernel_size * CFG::in_channels / WIDTH512) + (p * CFG::in_channels / WIDTH512) + jj];
-                                for (int j = 0; j < WIDTH512; ++j){
-                                    #pragma HLS pipeline
-                                    ap_int<16> val = weights_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
-                                    kernel_stream.write((HWTYPE) val);
-                                }
+                                kernel_stream.write(weights_temp);
                             }
                         }
                     }
@@ -102,7 +95,7 @@ void TransposeConv2d_kernel(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_siz
                      DTYPE out[CFG::out_channels][CFG::out_size][CFG::out_size])
                      */
 
-void TransposeConv2d_stream(hls::stream<HWTYPE> &in_stream, hls::stream<HWTYPE> &bias_stream, hls::stream<HWTYPE> &kernel_stream, hls::stream<HWTYPE> &out_stream) {
+void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<HWTYPE> &bias_stream, hls::stream<block512_t> &kernel_stream, hls::stream<HWTYPE> &out_stream) {
 
     static const int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);
 
@@ -135,9 +128,12 @@ void TransposeConv2d_stream(hls::stream<HWTYPE> &in_stream, hls::stream<HWTYPE> 
                     for (int p = 0; p < CFG::kernel_size; ++p){
                         for (int q = 0; q < CFG::kernel_size; ++q){
                             for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+                                #pragma HLS pipeline
+                                block512_t weights_temp = kernel_stream.read();
                                 for (int j = 0; j < WIDTH512; ++j){
-                                    #pragma HLS pipeline
-                                    weights_block[i][p][q][jj*WIDTH512 + j] = kernel_stream.read();
+                                    #pragma HLS unroll
+                                    ap_int<16> val = weights_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
+                                    weights_block[i][p][q][jj*WIDTH512 + j] = val;
                                 }
                             }
                         }
@@ -148,9 +144,12 @@ void TransposeConv2d_stream(hls::stream<HWTYPE> &in_stream, hls::stream<HWTYPE> 
                 for (int h = 0; h < CFG::osTile; ++h){
                     for (int w = 0; w < CFG::osTile; ++w){
                         for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+                            #pragma HLS pipeline
+                            block512_t in_temp = in_stream.read();
                             for (int j = 0; j < WIDTH512; ++j){
-                                #pragma HLS pipeline
-                                in_block[h / CFG::stride][w / CFG::stride][jj*WIDTH512 + j] = in_stream.read();
+                                #pragma HLS unroll
+                                ap_int<16> val = in_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
+                                in_block[h / CFG::stride][w / CFG::stride][jj*WIDTH512 + j] = val;
                             }
                         }
                     }
@@ -213,16 +212,10 @@ void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel
 
 #pragma HLS dataflow
 
-    static hls::stream<HWTYPE> in_stream("in_stream");
+    static hls::stream<block512_t> in_stream("in_stream");
     static hls::stream<HWTYPE> bias_stream("bias_stream");
-    static hls::stream<HWTYPE> kernel_stream("kernel_stream");
+    static hls::stream<block512_t> kernel_stream("kernel_stream");
     static hls::stream<HWTYPE> out_stream("out_stream");
-
-#pragma HLS stream variable=in_stream depth=256
-#pragma HLS stream variable=bias_stream depth=64
-#pragma HLS stream variable=kernel_stream depth=32
-#pragma HLS stream variable=out_stream depth=256
-
 
     read_in(in, in_stream);
     read_bias(bias, bias_stream);
