@@ -93,7 +93,7 @@ void TransposeConv2d_kernel(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_siz
                      DTYPE out[CFG::out_channels][CFG::out_size][CFG::out_size])
                      */
 
-void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<block256_t> &bias_stream, hls::stream<block512_t> &kernel_stream, hls::stream<block256_t> &out_stream) {
+void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<block256_t> &bias_stream, hls::stream<block512_t> &kernel_stream, hls::stream<block512_t> &out_stream) {
 
     static const int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);
 
