@@ -59,7 +59,7 @@ const bool check(std::vector<DTYPE, aligned_allocator<DTYPE>> &A, std::vector<DT
         if (A[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w] != B[h*CFG::out_size*CFG::out_channels + w*CFG::out_channels + i])
         {
           std::cout<<A[i*CFG::out_size*CFG::out_size + h*CFG::out_size + w]<<"  "<<B[h*CFG::out_size*CFG::out_channels + w*CFG::out_channels + i]<<std::endl;
-          //return false;
+          return false;
         }
       }
     }
@@ -94,15 +94,17 @@ int main(int argc, char **argv) {
 	cl::CommandQueue q;
 
 	std::vector<DTYPE, aligned_allocator<DTYPE>> conv_in(CFG::in_channels*CFG::in_size*CFG::in_size);
+    std::vector<DTYPE, aligned_allocator<DTYPE>> conv_in_t(CFG::in_channels*CFG::in_size*CFG::in_size);
 	std::vector<DTYPE, aligned_allocator<DTYPE>> conv_bias(CFG::out_channels);
 	std::vector<DTYPE, aligned_allocator<DTYPE>> conv_kernel(CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size);
-	std::vector<DTYPE, aligned_allocator<DTYPE>> conv_out_hw(CFG::out_channels*CFG::out_size*CFG::out_size);
+    std::vector<DTYPE, aligned_allocator<DTYPE>> conv_kernel_t(CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size);
+    std::vector<DTYPE, aligned_allocator<DTYPE>> conv_out_hw(CFG::out_channels*CFG::out_size*CFG::out_size);
 	std::vector<DTYPE, aligned_allocator<DTYPE>> conv_out_sw(CFG::out_channels*CFG::out_size*CFG::out_size);
 
-	init_mat(conv_in, CFG::in_channels*CFG::in_size*CFG::in_size, 1);
-    init_mat(conv_kernel,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 1);
-    init_mat(conv_bias, CFG::out_channels, 1);
-    conv_bias[0] = 0;
+	init_mat(conv_in, CFG::in_channels*CFG::in_size*CFG::in_size, 5);
+    init_mat(conv_kernel,CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size, 4);
+    init_mat(conv_bias, CFG::out_channels, 3);
+   
     
     //printmat(conv_in, CFG::in_size, CFG::in_channels, "conv_in");
     //printmat(conv_bias, 1, CFG::out_channels, "conv_bias");
@@ -111,8 +113,30 @@ int main(int argc, char **argv) {
     //printmat(conv_out_sw, CFG::out_size, CFG::out_channels, "conv_out_sw");
 
     // Generate SW ground truth
-    // TODO: Should we compare against 
-   TransposeConv2d_arr(conv_in.data(), conv_bias.data(), conv_kernel.data(), conv_out_sw.data()); 
+    // TODO: Should we compare against
+    //
+    //
+
+    // perform transformation on the input data
+    for (int i = 0; i < CFG::in_channels; ++i){
+        for (int h = 0; h < CFG::in_size; ++h){
+            for (int w = 0; w < CFG::in_size; ++w){
+               conv_in_t[i*CFG::in_size*CFG::in_size + h*CFG::in_size + w] = conv_in[h*CFG::in_size*CFG::in_channels + w*CFG::in_channels + i]; 
+            }
+        }
+    }
+
+    for (int i = 0; i < CFG::out_channels; ++i){
+        for (int p = 0; p < CFG::kernel_size; ++p){
+            for (int q = 0; q < CFG::kernel_size; ++q){
+                for (int j = 0; j < CFG::in_channels; ++j){
+                    conv_kernel_t[i*CFG::in_channels*CFG::kernel_size*CFG::kernel_size + j*CFG::kernel_size*CFG::kernel_size + p*CFG::kernel_size + q] = conv_kernel[i*CFG::in_channels*CFG::kernel_size*CFG::kernel_size + p*CFG::in_channels*CFG::kernel_size + q*CFG::in_channels + j];
+                }
+            }
+        }
+    }
+
+   TransposeConv2d_arr(conv_in_t.data(), conv_bias.data(), conv_kernel_t.data(), conv_out_sw.data()); 
 
 
   // OPENCL HOST CODE AREA START

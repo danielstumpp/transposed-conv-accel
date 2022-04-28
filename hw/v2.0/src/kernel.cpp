@@ -58,7 +58,7 @@ void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel
                         for (int q = 0; q < CFG::kernel_size; ++q){
                             for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
                                 #pragma HLS pipeline II=1
-                                block512_t weights_temp = kernel[((i + it) * CFG::in_channels * CFG::kernel_size * CFG::kernel_size / WIDTH512) + (p * CFG::kernel_size * CFG::in_channels / WIDTH512) + (p * CFG::in_channels / WIDTH512) + jj];
+                                block512_t weights_temp = kernel[((i + it) * CFG::in_channels * CFG::kernel_size * CFG::kernel_size / WIDTH512) + (p * CFG::kernel_size * CFG::in_channels / WIDTH512) + (q * CFG::in_channels / WIDTH512) + jj];
                                 for (int j = 0; j < WIDTH512; ++j){
                                     #pragma HLS unroll
                                     ap_int<16> val = weights_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
