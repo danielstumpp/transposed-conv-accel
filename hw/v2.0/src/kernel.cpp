@@ -95,9 +95,15 @@ void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel
                                     HWTYPE acc = 0;
                                     for (int j = 0; j < CFG::in_channels; ++j){
                                         #pragma HLS unroll
+                                        HWTYPE temp;
                                         if ((h + ht + p) % CFG::stride == inpad && (w + wt + q) % CFG::stride == inpad){
-                                            acc += weights_block[i][p][q][j] * in_block[h / CFG::stride][w / CFG::stride][j];
-                                        }                           
+                                            temp = weights_block[i][p][q][j] * in_block[h / CFG::stride][w / CFG::stride][j];
+                                        }
+                                        else
+                                        {
+                                            temp = 0;
+                                        }
+                                        acc += temp;                           
                                     }
                                     out_block[h][w][i] += acc;
                                 }
