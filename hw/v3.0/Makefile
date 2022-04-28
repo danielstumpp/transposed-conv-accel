@@ -48,6 +48,10 @@ ifneq ($(TARGET), hw)
 	CLFLAGS += -g
 endif
 
+ifneq ($(CFG),)
+	LDCLFLAGS += --config $(CFG)
+endif
+
 
 
 EXECUTABLE = host

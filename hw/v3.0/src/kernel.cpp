@@ -66,7 +66,7 @@ void read_kernel(block512_t *kernel, hls::stream<block512_t> &kernel_stream) {
     }
 }
 
-void write_out(block256_t *out, hls::stream<HWTYPE> &out_stream) {
+void write_out(block256_t *out, hls::stream<block256_t> &out_stream) {
     for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
@@ -74,12 +74,7 @@ void write_out(block256_t *out, hls::stream<HWTYPE> &out_stream) {
                 for (int h = 0; h < CFG::osTile; ++h){
                     for (int w = 0; w < CFG::osTile; ++w){
                         for (int ii = 0; ii < CFG::ocTile/WIDTH256; ++ii){
-                            block256_t out_temp;
-                            for (int i = 0; i < WIDTH256; ++i){
-                                #pragma HLS pipeline 
-                                out_temp(WORD_BITS * (i+1) - 1, WORD_BITS*i) = out_stream.read();
-                            }
-                            out[(h + ht) * CFG::out_size * CFG::out_channels/WIDTH256 + (w + wt) * CFG::out_channels/WIDTH256 + (ii + it/WIDTH256)] = out_temp;
+                            out[(h + ht) * CFG::out_size * CFG::out_channels/WIDTH256 + (w + wt) * CFG::out_channels/WIDTH256 + (ii + it/WIDTH256)] = out_stream.read();
                         }
                     }
                 }
@@ -95,7 +90,7 @@ void TransposeConv2d_kernel(DTYPE in[CFG::in_channels][CFG::in_size][CFG::in_siz
                      DTYPE out[CFG::out_channels][CFG::out_size][CFG::out_size])
                      */
 
-void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<HWTYPE> &bias_stream, hls::stream<block512_t> &kernel_stream, hls::stream<HWTYPE> &out_stream) {
+void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<HWTYPE> &bias_stream, hls::stream<block512_t> &kernel_stream, hls::stream<block256_t> &out_stream) {
 
     static const int inpad = MAX(CFG::kernel_size - CFG::pad - 1, 0);
 
@@ -182,10 +177,12 @@ void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<HWTY
                 for (int h = 0; h < CFG::osTile; ++h){
                     for (int w = 0; w < CFG::osTile; ++w){
                         for (int ii = 0; ii < CFG::ocTile/WIDTH256; ++ii){
+                            #pragma HLS pipeline
+                            block256_t out_temp;
                             for (int i = 0; i < WIDTH256; ++i){
-                                #pragma HLS pipeline 
-                                out_stream.write(out_block[h][w][ii*WIDTH256 + i]);
+                                out_temp(WORD_BITS * (i+1) - 1, WORD_BITS*i) = out_block[h][w][ii*WIDTH256 + i];
                             }
+                            out_stream.write(out_temp);
                         }
                     }
                 }
@@ -215,7 +212,7 @@ void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel
     static hls::stream<block512_t> in_stream("in_stream");
     static hls::stream<HWTYPE> bias_stream("bias_stream");
     static hls::stream<block512_t> kernel_stream("kernel_stream");
-    static hls::stream<HWTYPE> out_stream("out_stream");
+    static hls::stream<block256_t> out_stream("out_stream");
 
     read_in(in, in_stream);
     read_bias(bias, bias_stream);
