@@ -12,10 +12,10 @@ FPGA-based acceleration of transposed convolution
 
 ### v0.2
 - removal of input buffer
-- tiling in channels and input/output dim
+- tiling output channels and input/output dim
 
 ### v1.0 
-- unrolling in by 256 in output channel dim
+- unrolling in by 256 in input channel dim
 
 ### v2.0
 - unrolling in by 256 in output channel dim
