@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
+
 	std::string binaryFile = argv[1];
 	cl_int err;
 	cl::Context context;
@@ -150,40 +151,22 @@ int main(int argc, char **argv) {
   // Allocate Buffer in Global Memory
   // Buffers are allocated using CL_MEM_USE_HOST_PTR for efficient memory and
   // Device-to-host communication
-  //
-
-    std::vector<cl_mem_ext_ptr_t> source_ext(4);
-    source_ext[0].obj = conv_in.data();
-    source_ext[0].param = 0;
-    source_ext[0].flags = XCL_MEM_DDR_BANK0;
-    source_ext[1].obj = conv_bias.data();
-    source_ext[1].param = 0;
-    source_ext[1].flags = XCL_MEM_DDR_BANK0;
-    source_ext[2].obj = conv_kernel.data();
-    source_ext[2].param = 0;
-    source_ext[2].flags = XCL_MEM_DDR_BANK1;
-    source_ext[3].obj = conv_out_hw.data();
-    source_ext[3].param = 0;
-    source_ext[3].flags = XCL_MEM_DDR_BANK2;
-
-
-
   OCL_CHECK(err, cl::Buffer buffer_in(
-                     context, CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
+                     context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
                      sizeof(DTYPE)*CFG::in_channels*CFG::in_size*CFG::in_size,
-                     &source_ext[0], &err));
+                     conv_in.data(), &err));
   OCL_CHECK(err, cl::Buffer buffer_bias(
-                     context,CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
+                     context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
                      sizeof(DTYPE)*CFG::out_channels,
-                     &source_ext[1], &err));
+                     conv_bias.data(), &err));
   OCL_CHECK(err, cl::Buffer buffer_conv_kernel(
-                     context, CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
+                     context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
                      sizeof(DTYPE)*CFG::out_channels*CFG::in_channels*CFG::kernel_size*CFG::kernel_size,
-                     &source_ext[2], &err));
+                     conv_kernel.data(), &err));
   OCL_CHECK(err, cl::Buffer buffer_out(
-                     context, CL_MEM_EXT_PTR_XILINX | CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY,
+                     context, CL_MEM_USE_HOST_PTR ,
                      sizeof(DTYPE)*CFG::out_channels*CFG::out_size*CFG::out_size,
-                     &source_ext[3], &err));
+                     conv_out_hw.data(), &err));
 
   OCL_CHECK(err, err = krnl.setArg(0, buffer_in));
   OCL_CHECK(err, err = krnl.setArg(1, buffer_bias));
@@ -235,6 +218,7 @@ int main(int argc, char **argv) {
 
   bool match = check(conv_out_sw, conv_out_hw, 1, CFG::out_channels*CFG::out_size*CFG::out_size);
 
+  /*
   if (false)//!match)
   {
     // OPENCL HOST CODE AREA END
@@ -244,6 +228,7 @@ int main(int argc, char **argv) {
     std::cout << "Test"<<std::endl;
     printmat(conv_out_hw, CFG::out_size, CFG::out_channels, "conv out test");
   }
+  */
   
   std::cout << "TEST " << (match ? "PASSED" : "FAILED") << std::endl;
 
