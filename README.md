@@ -24,7 +24,7 @@ FPGA-based acceleration of transposed convolution
 - 256-bit for output and bias (due to channel tile size of 16)
 
 ### v2.1
-- unrolling in by 256 in output channel dim
+- unrolling in by 256 in input channel dim
 - Multiple AXI ports
 - Increase tile size in output channel to 32
 - 512-bit for all ports
