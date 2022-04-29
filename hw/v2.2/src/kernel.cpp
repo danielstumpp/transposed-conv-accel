@@ -37,13 +37,29 @@ void TransposeConv2d_kernel(block512_t *in, block512_t *bias, block512_t *kernel
 
     for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
+            // load input features
+            for (int h = 0; h < CFG::osTile; ++h){
+                for (int w = 0; w < CFG::osTile; ++w){
+                    for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+#pragma HLS pipeline II=1
+                        block512_t in_temp = in[((h + ht) / CFG::stride) * CFG::in_size * CFG::in_channels/WIDTH512 + ((w + wt) / CFG::stride) * CFG::in_channels/WIDTH512 + jj];
+                        for (int j = 0; j < WIDTH512; ++j){
+#pragma HLS unroll
+                            ap_int<16> val = in_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
+                            in_block[h / CFG::stride][w / CFG::stride][jj*WIDTH512 + j] = (HWTYPE) val;
+                        }
+                    }
+                }
+            }
+
+
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
 
                 // load bias into output block
-                for (int h = 0; h < CFG::osTile; ++h){
-                    for (int w = 0; w < CFG::osTile; ++w){
-                        for (int ii = 0; ii < CFG::ocTile/WIDTH512; ++ii){
-                            block512_t b_temp = bias[it/WIDTH512 + ii];
+                for (int ii = 0; ii < CFG::ocTile/WIDTH512; ++ii){
+                    block512_t b_temp = bias[it/WIDTH512 + ii];
+                    for (int h = 0; h < CFG::osTile; ++h){
+                        for (int w = 0; w < CFG::osTile; ++w){
                             for (int i = 0; i < WIDTH512; ++i){
                                 #pragma HLS pipeline II=1
                                 HWTYPE b = (HWTYPE)b_temp(WORD_BITS * (i + 1) - 1, WORD_BITS * i);
@@ -70,20 +86,6 @@ void TransposeConv2d_kernel(block512_t *in, block512_t *bias, block512_t *kernel
                     }
                 }
 
-                // load input features
-                for (int h = 0; h < CFG::osTile; ++h){
-                    for (int w = 0; w < CFG::osTile; ++w){
-                        for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
-                            #pragma HLS pipeline II=1
-                            block512_t in_temp = in[((h + ht) / CFG::stride) * CFG::in_size * CFG::in_channels/WIDTH512 + ((w + wt) / CFG::stride) * CFG::in_channels/WIDTH512 + jj];
-                            for (int j = 0; j < WIDTH512; ++j){
-                                #pragma HLS unroll
-                                ap_int<16> val = in_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
-                                in_block[h / CFG::stride][w / CFG::stride][jj*WIDTH512 + j] = (HWTYPE) val;
-                            }
-                        }
-                    }
-                }
          
 
                 // perform convolution

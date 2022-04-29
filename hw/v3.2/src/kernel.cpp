@@ -8,17 +8,16 @@
 void read_in(block512_t *in, hls::stream<block512_t> &in_stream) {
     for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
-            for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
-                // load input features
-                for (int h = 0; h < CFG::osTile; ++h){
-                    for (int w = 0; w < CFG::osTile; ++w){
-                        for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
-                            block512_t in_temp = in[((h + ht) / CFG::stride) * CFG::in_size * CFG::in_channels/WIDTH512 + ((w + wt) / CFG::stride) * CFG::in_channels/WIDTH512 + jj];
-                            in_stream.write(in_temp);
-                        }
+            // load input features
+            for (int h = 0; h < CFG::osTile; ++h){
+                for (int w = 0; w < CFG::osTile; ++w){
+                    for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+                        #pragma HLS pipeline
+                        block512_t in_temp = in[((h + ht) / CFG::stride) * CFG::in_size * CFG::in_channels/WIDTH512 + ((w + wt) / CFG::stride) * CFG::in_channels/WIDTH512 + jj];
+                        in_stream.write(in_temp);
                     }
                 }
-            }  
+            }
         }
     }                          
 }
@@ -97,6 +96,21 @@ void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<bloc
 
     for (int ht = 0; ht < CFG::out_size; ht += CFG::osTile){
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
+            // load input features
+            for (int h = 0; h < CFG::osTile; ++h){
+                for (int w = 0; w < CFG::osTile; ++w){
+                    for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
+                        #pragma HLS pipeline
+                        block512_t in_temp = in_stream.read();
+                        for (int j = 0; j < WIDTH512; ++j){
+                            #pragma HLS unroll
+                            ap_int<16> val = in_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
+                            in_block[h / CFG::stride][w / CFG::stride][jj*WIDTH512 + j] = val;
+                        }
+                    }
+                }
+            }
+
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
 
                 // load bias into output block
@@ -130,20 +144,6 @@ void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<bloc
                     }
                 }
 
-                // load input features
-                for (int h = 0; h < CFG::osTile; ++h){
-                    for (int w = 0; w < CFG::osTile; ++w){
-                        for (int jj = 0; jj < CFG::in_channels/WIDTH512; ++jj){
-                            #pragma HLS pipeline
-                            block512_t in_temp = in_stream.read();
-                            for (int j = 0; j < WIDTH512; ++j){
-                                #pragma HLS unroll
-                                ap_int<16> val = in_temp(WORD_BITS * (j + 1) - 1, WORD_BITS * j);
-                                in_block[h / CFG::stride][w / CFG::stride][jj*WIDTH512 + j] = val;
-                            }
-                        }
-                    }
-                }
          
 
                 // perform convolution
