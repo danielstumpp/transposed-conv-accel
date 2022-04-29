@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
+
 	std::string binaryFile = argv[1];
 	cl_int err;
 	cl::Context context;
@@ -217,6 +218,7 @@ int main(int argc, char **argv) {
 
   bool match = check(conv_out_sw, conv_out_hw, 1, CFG::out_channels*CFG::out_size*CFG::out_size);
 
+  /*
   if (false)//!match)
   {
     // OPENCL HOST CODE AREA END
@@ -226,6 +228,7 @@ int main(int argc, char **argv) {
     std::cout << "Test"<<std::endl;
     printmat(conv_out_hw, CFG::out_size, CFG::out_channels, "conv out test");
   }
+  */
   
   std::cout << "TEST " << (match ? "PASSED" : "FAILED") << std::endl;
 

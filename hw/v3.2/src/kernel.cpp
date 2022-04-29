@@ -28,20 +28,9 @@ void read_bias(block512_t *bias, hls::stream<block512_t> &bias_stream) {
         for (int wt = 0; wt < CFG::out_size; wt += CFG::osTile){
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
                 // load bias into output block
-                for (int h = 0; h < CFG::osTile; ++h){
-                    for (int w = 0; w < CFG::osTile; ++w){
-                        for (int ii = 0; ii < CFG::ocTile/WIDTH512; ++ii){
-                            block512_t b_temp = bias[it/WIDTH512 + ii];
-                            bias_stream.write(b_temp);
-                            /*
-                            for (int i = 0; i < WIDTH256; ++i){
-                                #pragma HLS pipeline II=1
-                                HWTYPE b = (HWTYPE)b_temp(WORD_BITS * (i + 1) - 1, WORD_BITS * i);
-                                bias_stream.write(b);
-                            }
-                            */
-                        }
-                    } 
+                for (int ii = 0; ii < CFG::ocTile/WIDTH512; ++ii){
+                    block512_t b_temp = bias[it/WIDTH512 + ii];
+                    bias_stream.write(b_temp);
                 }
             }
         }
@@ -102,7 +91,7 @@ void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<bloc
     HWTYPE in_block[CFG::osTile / CFG::stride][CFG::osTile / CFG::stride][CFG::in_channels];
 
     #pragma HLS array_partition variable=weights_block dim=4 complete
-    #pragma HLS array_partition variable=weights_block dim=3 complete
+    //#pragma HLS array_partition variable=weights_block dim=3 complete
     #pragma HLS array_partition variable=in_block dim=3 complete
     //#pragma HLS array_partition variable=out_block dim=3 complete
 
@@ -111,12 +100,12 @@ void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<bloc
             for (int it = 0; it < CFG::out_channels; it += CFG::ocTile){
 
                 // load bias into output block
-                for (int h = 0; h < CFG::osTile; ++h){
-                    for (int w = 0; w < CFG::osTile; ++w){
-                        for (int ii = 0; ii < CFG::ocTile/WIDTH512; ++ii){
-                            block512_t b_temp = bias_stream.read();
+                for (int ii = 0; ii < CFG::ocTile/WIDTH512; ++ii){
+                    block512_t b_temp = bias_stream.read();
+                    for (int h = 0; h < CFG::osTile; ++h){
+                        for (int w = 0; w < CFG::osTile; ++w){
                             for (int i = 0; i < WIDTH512; ++i){
-                                #pragma HLS pipeline
+#pragma HLS pipeline
                                 HWTYPE b = (HWTYPE)b_temp(WORD_BITS * (i + 1) - 1, WORD_BITS * i);
                                 out_block[h][w][ii*WIDTH512 + i] = b;
                             }
@@ -159,14 +148,13 @@ void TransposeConv2d_stream(hls::stream<block512_t> &in_stream, hls::stream<bloc
 
                 // perform convolution
                 for (int p = 0; p < CFG::kernel_size; ++p) {
-                    for (int h = 0; h < CFG::osTile; ++h){
-                        for (int w = 0; w < CFG::osTile; ++w){
-                            for (int i = 0; i < CFG::ocTile; ++i){
-                                #pragma HLS pipeline II=1
-                                HWTYPE acc = 0;
-                                for (int j = 0; j < CFG::in_channels; ++j){
-                                    #pragma HLS unroll
-                                    for (int q = 0; q < CFG::kernel_size; ++q){
+                    for (int q = 0; q < CFG::kernel_size; ++q){
+                        for (int h = 0; h < CFG::osTile; ++h){
+                            for (int w = 0; w < CFG::osTile; ++w){
+                                for (int i = 0; i < CFG::ocTile; ++i){
+                                    #pragma HLS pipeline II=1
+                                    HWTYPE acc = 0;
+                                    for (int j = 0; j < CFG::in_channels; ++j){
                                         #pragma HLS unroll
                                         HWTYPE temp;
                                         if ((h + ht + p) % CFG::stride == inpad && (w + wt + q) % CFG::stride == inpad){
