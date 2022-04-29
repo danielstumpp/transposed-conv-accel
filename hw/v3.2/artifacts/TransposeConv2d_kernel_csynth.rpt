@@ -3,7 +3,7 @@
 ================================================================
 == Vivado HLS Report for 'TransposeConv2d_kernel'
 ================================================================
-* Date:           Wed Apr 28 15:18:12 2021
+* Date:           Thu Apr 29 11:46:03 2021
 
 * Version:        2019.2 (Build 2704478 on Wed Nov 06 22:10:23 MST 2019)
 * Project:        TransposeConv2d_kernel
@@ -29,7 +29,7 @@
     |   Latency (cycles)  |   Latency (absolute)  |       Interval      | Pipeline |
     |    min   |    max   |    min    |    max    |    min   |    max   |   Type   |
     +----------+----------+-----------+-----------+----------+----------+----------+
-    |  24052713|  24052713| 80.168 ms | 80.168 ms |  22792706|  22792706| dataflow |
+    |  31407372|  31407372| 0.105 sec | 0.105 sec |  31107362|  31107362| dataflow |
     +----------+----------+-----------+-----------+----------+----------+----------+
 
     + Detail: 
@@ -38,11 +38,11 @@
         |                                  |                               |   Latency (cycles)  |   Latency (absolute)  |       Interval      | Pipeline|
         |             Instance             |             Module            |    min   |    max   |    min    |    max    |    min   |    max   |   Type  |
         +----------------------------------+-------------------------------+----------+----------+-----------+-----------+----------+----------+---------+
-        |TransposeConv2d_stream_U0         |TransposeConv2d_stream         |  22792705|  22792705| 75.968 ms | 75.968 ms |  22792705|  22792705|   none  |
-        |read_in_U0                        |read_in                        |   1280014|   1280014|  4.266 ms |  4.266 ms |   1280014|   1280014|   none  |
+        |TransposeConv2d_stream_U0         |TransposeConv2d_stream         |  31107361|  31107361| 0.104 sec | 0.104 sec |  31107361|  31107361|   none  |
+        |read_in_U0                        |read_in                        |    320014|    320014|  1.067 ms |  1.067 ms |    320014|    320014|   none  |
         |read_kernel_U0                    |read_kernel                    |     65547|     65547|  0.218 ms |  0.218 ms |     65547|     65547|   none  |
         |write_out_U0                      |write_out                      |   1296169|   1296169|  4.320 ms |  4.320 ms |   1296169|   1296169|   none  |
-        |read_bias_U0                      |read_bias                      |   1446569|   1446569|  4.821 ms |  4.821 ms |   1446569|   1446569|   none  |
+        |read_bias_U0                      |read_bias                      |       265|       265|  0.883 us |  0.883 us |       265|       265|   none  |
         |TransposeConv2d_kernel_entry7_U0  |TransposeConv2d_kernel_entry7  |         0|         0|    0 ns   |    0 ns   |         0|         0|   none  |
         +----------------------------------+-------------------------------+----------+----------+-----------+-----------+----------+----------+---------+
 
@@ -61,40 +61,40 @@
 |DSP                  |        -|      -|        -|        -|    -|
 |Expression           |        -|      -|        0|       32|    -|
 |FIFO                 |      116|      -|     2130|     1887|    -|
-|Instance             |      933|    523|   102855|   104577|    0|
+|Instance             |      677|    267|    13341|    40834|    0|
 |Memory               |        -|      -|        -|        -|    -|
 |Multiplexer          |        -|      -|        -|       72|    -|
 |Register             |        -|      -|       15|        -|    -|
 +---------------------+---------+-------+---------+---------+-----+
-|Total                |     1049|    523|   105000|   106568|    0|
+|Total                |      793|    267|    15486|    42825|    0|
 +---------------------+---------+-------+---------+---------+-----+
 |Available SLR        |     1440|   2280|   788160|   394080|  320|
 +---------------------+---------+-------+---------+---------+-----+
-|Utilization SLR (%)  |       72|     22|       13|       27|    0|
+|Utilization SLR (%)  |       55|     11|        1|       10|    0|
 +---------------------+---------+-------+---------+---------+-----+
 |Available            |     4320|   6840|  2364480|  1182240|  960|
 +---------------------+---------+-------+---------+---------+-----+
-|Utilization (%)      |       24|      7|        4|        9|    0|
+|Utilization (%)      |       18|      3|    ~0   |        3|    0|
 +---------------------+---------+-------+---------+---------+-----+
 
 + Detail: 
     * Instance: 
-    +----------------------------------------+--------------------------------------+---------+-------+-------+-------+-----+
-    |                Instance                |                Module                | BRAM_18K| DSP48E|   FF  |  LUT  | URAM|
-    +----------------------------------------+--------------------------------------+---------+-------+-------+-------+-----+
-    |TransposeConv2d_kernel_control_s_axi_U  |TransposeConv2d_kernel_control_s_axi  |        0|      0|    316|    552|    0|
-    |TransposeConv2d_kernel_entry7_U0        |TransposeConv2d_kernel_entry7         |        0|      0|      3|     56|    0|
-    |TransposeConv2d_kernel_gmem0_m_axi_U    |TransposeConv2d_kernel_gmem0_m_axi    |       30|      0|   1415|   1585|    0|
-    |TransposeConv2d_kernel_gmem1_m_axi_U    |TransposeConv2d_kernel_gmem1_m_axi    |       30|      0|   1415|   1585|    0|
-    |TransposeConv2d_kernel_gmem2_m_axi_U    |TransposeConv2d_kernel_gmem2_m_axi    |       30|      0|   1415|   1585|    0|
-    |TransposeConv2d_stream_U0               |TransposeConv2d_stream                |      843|    518|  94365|  96506|    0|
-    |read_bias_U0                            |read_bias                             |        0|      0|    692|    295|    0|
-    |read_in_U0                              |read_in                               |        0|      4|   1631|   1326|    0|
-    |read_kernel_U0                          |read_kernel                           |        0|      0|    889|    728|    0|
-    |write_out_U0                            |write_out                             |        0|      1|    714|    359|    0|
-    +----------------------------------------+--------------------------------------+---------+-------+-------+-------+-----+
-    |Total                                   |                                      |      933|    523| 102855| 104577|    0|
-    +----------------------------------------+--------------------------------------+---------+-------+-------+-------+-----+
+    +----------------------------------------+--------------------------------------+---------+-------+------+-------+-----+
+    |                Instance                |                Module                | BRAM_18K| DSP48E|  FF  |  LUT  | URAM|
+    +----------------------------------------+--------------------------------------+---------+-------+------+-------+-----+
+    |TransposeConv2d_kernel_control_s_axi_U  |TransposeConv2d_kernel_control_s_axi  |        0|      0|   316|    552|    0|
+    |TransposeConv2d_kernel_entry7_U0        |TransposeConv2d_kernel_entry7         |        0|      0|     3|     56|    0|
+    |TransposeConv2d_kernel_gmem0_m_axi_U    |TransposeConv2d_kernel_gmem0_m_axi    |       30|      0|  1415|   1585|    0|
+    |TransposeConv2d_kernel_gmem1_m_axi_U    |TransposeConv2d_kernel_gmem1_m_axi    |       30|      0|  1415|   1585|    0|
+    |TransposeConv2d_kernel_gmem2_m_axi_U    |TransposeConv2d_kernel_gmem2_m_axi    |       30|      0|  1415|   1585|    0|
+    |TransposeConv2d_stream_U0               |TransposeConv2d_stream                |      587|    262|  5163|  33117|    0|
+    |read_bias_U0                            |read_bias                             |        0|      0|   614|    177|    0|
+    |read_in_U0                              |read_in                               |        0|      4|  1397|   1090|    0|
+    |read_kernel_U0                          |read_kernel                           |        0|      0|   889|    728|    0|
+    |write_out_U0                            |write_out                             |        0|      1|   714|    359|    0|
+    +----------------------------------------+--------------------------------------+---------+-------+------+-------+-----+
+    |Total                                   |                                      |      677|    267| 13341|  40834|    0|
+    +----------------------------------------+--------------------------------------+---------+-------+------+-------+-----+
 
     * DSP48E: 
     N/A

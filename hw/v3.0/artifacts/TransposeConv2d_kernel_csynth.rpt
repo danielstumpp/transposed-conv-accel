@@ -3,7 +3,7 @@
 ================================================================
 == Vivado HLS Report for 'TransposeConv2d_kernel'
 ================================================================
-* Date:           Wed Apr 28 08:32:43 2021
+* Date:           Thu Apr 29 11:46:03 2021
 
 * Version:        2019.2 (Build 2704478 on Wed Nov 06 22:10:23 MST 2019)
 * Project:        TransposeConv2d_kernel
@@ -20,7 +20,7 @@
     +--------+---------+----------+------------+
     |  Clock |  Target | Estimated| Uncertainty|
     +--------+---------+----------+------------+
-    |ap_clk  | 3.33 ns | 3.417 ns |   0.90 ns  |
+    |ap_clk  | 3.33 ns | 2.433 ns |   0.90 ns  |
     +--------+---------+----------+------------+
 
 + Latency: 
@@ -29,7 +29,7 @@
     |   Latency (cycles)  |   Latency (absolute)  |       Interval      | Pipeline |
     |    min   |    max   |    min    |    max    |    min   |    max   |   Type   |
     +----------+----------+-----------+-----------+----------+----------+----------+
-    |  59913674|  59913674| 0.205 sec | 0.205 sec |  54833666|  54833666| dataflow |
+    |  31407372|  31407372| 0.105 sec | 0.105 sec |  31107362|  31107362| dataflow |
     +----------+----------+-----------+-----------+----------+----------+----------+
 
     + Detail: 
@@ -38,11 +38,11 @@
         |                                  |                               |   Latency (cycles)  |   Latency (absolute)  |       Interval      | Pipeline|
         |             Instance             |             Module            |    min   |    max   |    min    |    max    |    min   |    max   |   Type  |
         +----------------------------------+-------------------------------+----------+----------+-----------+-----------+----------+----------+---------+
-        |TransposeConv2d_stream_U0         |TransposeConv2d_stream         |  54833665|  54833665| 0.187 sec | 0.187 sec |  54833665|  54833665|   none  |
-        |read_bias_U0                      |read_bias                      |   5120012|   5120012| 17.495 ms | 17.495 ms |   5120012|   5120012|   none  |
-        |read_in_U0                        |read_in                        |   2560014|   2560014|  8.748 ms |  8.748 ms |   2560014|   2560014|   none  |
-        |read_kernel_U0                    |read_kernel                    |     65547|     65547|  0.224 ms |  0.224 ms |     65547|     65547|   none  |
-        |write_out_U0                      |write_out                      |   2592297|   2592297|  8.858 ms |  8.858 ms |   2592297|   2592297|   none  |
+        |TransposeConv2d_stream_U0         |TransposeConv2d_stream         |  31107361|  31107361| 0.104 sec | 0.104 sec |  31107361|  31107361|   none  |
+        |read_in_U0                        |read_in                        |    320014|    320014|  1.067 ms |  1.067 ms |    320014|    320014|   none  |
+        |read_kernel_U0                    |read_kernel                    |     65547|     65547|  0.218 ms |  0.218 ms |     65547|     65547|   none  |
+        |write_out_U0                      |write_out                      |   1296169|   1296169|  4.320 ms |  4.320 ms |   1296169|   1296169|   none  |
+        |read_bias_U0                      |read_bias                      |       265|       265|  0.883 us |  0.883 us |       265|       265|   none  |
         |TransposeConv2d_kernel_entry7_U0  |TransposeConv2d_kernel_entry7  |         0|         0|    0 ns   |    0 ns   |         0|         0|   none  |
         +----------------------------------+-------------------------------+----------+----------+-----------+-----------+----------+----------+---------+
 
@@ -60,21 +60,21 @@
 +---------------------+---------+-------+---------+---------+-----+
 |DSP                  |        -|      -|        -|        -|    -|
 |Expression           |        -|      -|        0|       32|    -|
-|FIFO                 |       58|      -|     1074|     1620|    -|
-|Instance             |      624|    266|    12808|    29107|    0|
+|FIFO                 |      116|      -|     2130|     1887|    -|
+|Instance             |      677|    267|    13341|    40834|    0|
 |Memory               |        -|      -|        -|        -|    -|
 |Multiplexer          |        -|      -|        -|       72|    -|
 |Register             |        -|      -|       15|        -|    -|
 +---------------------+---------+-------+---------+---------+-----+
-|Total                |      682|    266|    13897|    30831|    0|
+|Total                |      793|    267|    15486|    42825|    0|
 +---------------------+---------+-------+---------+---------+-----+
 |Available SLR        |     1440|   2280|   788160|   394080|  320|
 +---------------------+---------+-------+---------+---------+-----+
-|Utilization SLR (%)  |       47|     11|        1|        7|    0|
+|Utilization SLR (%)  |       55|     11|        1|       10|    0|
 +---------------------+---------+-------+---------+---------+-----+
 |Available            |     4320|   6840|  2364480|  1182240|  960|
 +---------------------+---------+-------+---------+---------+-----+
-|Utilization (%)      |       15|      3|    ~0   |        2|    0|
+|Utilization (%)      |       18|      3|    ~0   |        3|    0|
 +---------------------+---------+-------+---------+---------+-----+
 
 + Detail: 
@@ -84,16 +84,16 @@
     +----------------------------------------+--------------------------------------+---------+-------+------+-------+-----+
     |TransposeConv2d_kernel_control_s_axi_U  |TransposeConv2d_kernel_control_s_axi  |        0|      0|   316|    552|    0|
     |TransposeConv2d_kernel_entry7_U0        |TransposeConv2d_kernel_entry7         |        0|      0|     3|     56|    0|
-    |TransposeConv2d_kernel_gmem0_m_axi_U    |TransposeConv2d_kernel_gmem0_m_axi    |       16|      0|   881|   1052|    0|
-    |TransposeConv2d_kernel_gmem1_m_axi_U    |TransposeConv2d_kernel_gmem1_m_axi    |       16|      0|   881|   1052|    0|
-    |TransposeConv2d_kernel_gmem2_m_axi_U    |TransposeConv2d_kernel_gmem2_m_axi    |       16|      0|   881|   1052|    0|
-    |TransposeConv2d_stream_U0               |TransposeConv2d_stream                |      576|    261|  6122|  19406|    0|
-    |read_bias_U0                            |read_bias                             |        0|      0|   724|   3519|    0|
-    |read_in_U0                              |read_in                               |        0|      4|  1634|   1331|    0|
-    |read_kernel_U0                          |read_kernel                           |        0|      0|   904|    726|    0|
-    |write_out_U0                            |write_out                             |        0|      1|   462|    361|    0|
+    |TransposeConv2d_kernel_gmem0_m_axi_U    |TransposeConv2d_kernel_gmem0_m_axi    |       30|      0|  1415|   1585|    0|
+    |TransposeConv2d_kernel_gmem1_m_axi_U    |TransposeConv2d_kernel_gmem1_m_axi    |       30|      0|  1415|   1585|    0|
+    |TransposeConv2d_kernel_gmem2_m_axi_U    |TransposeConv2d_kernel_gmem2_m_axi    |       30|      0|  1415|   1585|    0|
+    |TransposeConv2d_stream_U0               |TransposeConv2d_stream                |      587|    262|  5163|  33117|    0|
+    |read_bias_U0                            |read_bias                             |        0|      0|   614|    177|    0|
+    |read_in_U0                              |read_in                               |        0|      4|  1397|   1090|    0|
+    |read_kernel_U0                          |read_kernel                           |        0|      0|   889|    728|    0|
+    |write_out_U0                            |write_out                             |        0|      1|   714|    359|    0|
     +----------------------------------------+--------------------------------------+---------+-------+------+-------+-----+
-    |Total                                   |                                      |      624|    266| 12808|  29107|    0|
+    |Total                                   |                                      |      677|    267| 13341|  40834|    0|
     +----------------------------------------+--------------------------------------+---------+-------+------+-------+-----+
 
     * DSP48E: 
@@ -107,15 +107,15 @@
     |         Name        | BRAM_18K|  FF | LUT| URAM| Depth| Bits| Size:D*B|
     +---------------------+---------+-----+----+-----+------+-----+---------+
     |bias_V_c_U           |        0|    5|   0|    -|     2|   64|      128|
-    |bias_stream_V_U      |        0|    5|   0|    -|     2|   16|       32|
+    |bias_stream_V_V_U    |       29|  524|   0|    -|     8|  512|     4096|
     |in_V_c_U             |        0|    5|   0|    -|     2|   64|      128|
-    |in_stream_V_V_U      |       29|  522|   0|    -|     2|  512|     1024|
+    |in_stream_V_V_U      |       29|  529|   0|    -|    32|  512|    16384|
     |kernel_V_c_U         |        0|    5|   0|    -|     2|   64|      128|
-    |kernel_stream_V_V_U  |       29|  522|   0|    -|     2|  512|     1024|
+    |kernel_stream_V_V_U  |       29|  528|   0|    -|    16|  512|     8192|
     |out_V_c_U            |        0|    5|   0|    -|     2|   64|      128|
-    |out_stream_V_V_U     |        0|    5|   0|    -|     2|  256|      512|
+    |out_stream_V_V_U     |       29|  529|   0|    -|    32|  512|    16384|
     +---------------------+---------+-----+----+-----+------+-----+---------+
-    |Total                |       58| 1074|   0|    0|    16| 1552|     3104|
+    |Total                |      116| 2130|   0|    0|    96| 2304|    45568|
     +---------------------+---------+-----+----+-----+------+-----+---------+
 
     * Expression: 
@@ -264,8 +264,8 @@
 |m_axi_gmem1_AWUSER     | out |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_WVALID     | out |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_WREADY     |  in |    1|    m_axi   |          gmem1         |    pointer   |
-|m_axi_gmem1_WDATA      | out |  256|    m_axi   |          gmem1         |    pointer   |
-|m_axi_gmem1_WSTRB      | out |   32|    m_axi   |          gmem1         |    pointer   |
+|m_axi_gmem1_WDATA      | out |  512|    m_axi   |          gmem1         |    pointer   |
+|m_axi_gmem1_WSTRB      | out |   64|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_WLAST      | out |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_WID        | out |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_WUSER      | out |    1|    m_axi   |          gmem1         |    pointer   |
@@ -284,7 +284,7 @@
 |m_axi_gmem1_ARUSER     | out |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_RVALID     |  in |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_RREADY     | out |    1|    m_axi   |          gmem1         |    pointer   |
-|m_axi_gmem1_RDATA      |  in |  256|    m_axi   |          gmem1         |    pointer   |
+|m_axi_gmem1_RDATA      |  in |  512|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_RLAST      |  in |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_RID        |  in |    1|    m_axi   |          gmem1         |    pointer   |
 |m_axi_gmem1_RUSER      |  in |    1|    m_axi   |          gmem1         |    pointer   |

@@ -13,5 +13,5 @@ const int WIDTH256 = 16;
 const int WORD_BITS = 16;
 
 extern "C" {
-void TransposeConv2d_kernel(block512_t *in, block256_t *bias, block512_t *kernel, block256_t *out);
+void TransposeConv2d_kernel(block512_t *in, block512_t *bias, block512_t *kernel, block512_t *out);
 }
